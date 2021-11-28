@@ -1,13 +1,16 @@
+import math
 import numpy as np
 import random
 import simpy
 
 INIT_TASKS = 4
-N_MACHINES = 1
+N_MACHINES = 4
 MAX_SIM_TIME = 100
 TASK_DURATION = 10
 TASK_CREATION = 3
 TASK_CREATION_SPREAD = 2
+
+MARKOV_TASK_DURATION = 0.2
 
 data = {
     "wait_times": [],
@@ -33,7 +36,7 @@ class Task():
         self.name = name
 
     def get_task_duration(self):
-        return TASK_DURATION
+        return generate_random_markov(MARKOV_TASK_DURATION)
 
     def __str__(self):
         return f"{self.name}"
@@ -54,7 +57,6 @@ def process_task(env, task, server):
     data["wait_times"].append(time_start_process - time_at_queue)
     data["process_times"].append(time_end_process - time_start_process)
 
-
 def setup(env, n_machines):
 
     server = Server(env, n_machines)
@@ -66,6 +68,19 @@ def setup(env, n_machines):
         yield env.timeout(random.randint(TASK_CREATION - TASK_CREATION_SPREAD, TASK_CREATION + TASK_CREATION_SPREAD))
         i += 1
         env.process(process_task(env, Task(f"Task {i}"), server))
+
+def generate_random_markov(lamda):
+    """
+    Markov CDF: y = 1 - e^(-lamda t)
+    The y value has a range of 0 to 1, which we can sample.
+    Thus we can obtain a random t value by sampling y
+
+    t = - ln(1 - y) / lamda
+    """
+
+    r = random.random()
+    return -math.log(1 - r) / lamda
+
 
 def main():
 
