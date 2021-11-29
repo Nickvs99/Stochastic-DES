@@ -4,14 +4,14 @@ import random
 import simpy
 
 INIT_TASKS = 4
-N_MACHINES = 4
-MAX_SIM_TIME = 100
+N_MACHINES = 1
+MAX_SIM_TIME = 100000
 TASK_DURATION = 10
 TASK_CREATION = 3
 TASK_CREATION_SPREAD = 2
 
-MARKOV_TASK_DURATION = 0.2
-MARKOV_TASK_ARRIVAL = 0.2
+MARKOV_TASK_DURATION = 1
+MARKOV_TASK_ARRIVAL = 0.9
 
 data = {
     "wait_times": [],
@@ -44,15 +44,15 @@ class Task():
 
 def process_task(env, task, server):
 
-    print(f"{task} added to server at {env.now}. Queue length: {server.queue_length}")
+    #print(f"{task} added to server at {env.now}. Queue length: {server.queue_length}")
     time_at_queue = env.now
     with server.machine.request() as request:
         yield request
 
-        print(f"{task} is being processed at {env.now}")
+        #print(f"{task} is being processed at {env.now}")
         time_start_process = env.now
         yield env.process(server.run_task(task))
-        print(f"{task} is completed at {env.now}")
+        #print(f"{task} is completed at {env.now}")
         time_end_process = env.now
 
     data["wait_times"].append(time_start_process - time_at_queue)
