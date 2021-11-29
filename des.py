@@ -11,6 +11,7 @@ TASK_CREATION = 3
 TASK_CREATION_SPREAD = 2
 
 MARKOV_TASK_DURATION = 0.2
+MARKOV_TASK_ARRIVAL = 0.2
 
 data = {
     "wait_times": [],
@@ -65,7 +66,7 @@ def setup(env, n_machines):
         env.process(process_task(env, Task(f"Task {i}"), server))
 
     while True:
-        yield env.timeout(random.randint(TASK_CREATION - TASK_CREATION_SPREAD, TASK_CREATION + TASK_CREATION_SPREAD))
+        yield env.timeout(generate_random_markov(MARKOV_TASK_ARRIVAL))
         i += 1
         env.process(process_task(env, Task(f"Task {i}"), server))
 
